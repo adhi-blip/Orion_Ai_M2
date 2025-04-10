@@ -1,0 +1,28 @@
+Jarvis/vosk-model-en-us-0.42-gigaspeech/
+# Ignore virtual environments
+jarvis-env/
+Jarvis/jarvis-env/
+
+# Ignore taggers and models
+Jarvis/taggers/
+*.zip
+*.pickle
+*.json
+
+# Ignore audio files
+Jarvis/output.wav
+
+# Ignore IDE configs and cache
+.idea/
+__pycache__/
+*.pyc
+*.pyd
+*.iml
+
+# System-specific
+.DS_Store
+Jarvis/vosk-model-en-us-0.42-gigaspeech/
+jarvis-env/
+__pycache__/
+*.pyc
+output.wav
