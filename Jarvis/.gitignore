@@ -1,0 +1,19 @@
+# Ignore the virtual environment
+jarvis-env/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore log files and system files
+*.log
+.DS_Store
+Thumbs.db
+
+# Ignore VSCode settings (if using VSCode)
+.vscode/
+
+# Ignore large dependencies
+node_modules/
