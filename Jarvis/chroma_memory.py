@@ -8,7 +8,7 @@ collection = chroma_client.get_or_create_collection(name="context")
 def relevant_context(user_input):
     results=collection.query(
         query_texts=[user_input],
-        n_results=3
+        n_results=5
     )
     return results['documents']if results['documents']else[]
 
@@ -28,5 +28,3 @@ def build_prompt(user_input):
 
 User: {user_input}
 AI:"""
-#place holder commit
-#place holder commit 2

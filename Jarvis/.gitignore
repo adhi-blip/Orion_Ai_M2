@@ -17,3 +17,5 @@ Thumbs.db
 
 # Ignore large dependencies
 node_modules/
+
+vosk-model-en-us0.42-gigaspeech/

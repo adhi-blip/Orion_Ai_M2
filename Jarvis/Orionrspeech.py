@@ -2,13 +2,19 @@ import asyncio
 import os
 import sys
 import json
+from logging import exception
+
 import pyaudio
 import vosk
 import pyttsx3
 import numpy as np
 import resample
 import time
+
+from torch.onnx.symbolic_opset11 import chunk
+
 from LLM_llama_spch import chat_with_ollama # Import AI response function
+from chroma_memory import build_prompt, contextual_storage
 
 # Ensure proper event loop handling for Windows
 if sys.platform.startswith("win") and sys.version_info >= (3, 8):
@@ -107,37 +113,20 @@ async def speak(text):
 
 
 async def execute_command(command):
-    """Handles AI-generated responses and system commands."""
     try:
-        response = await chat_with_ollama(command)  # ✅ Correctly awaiting async function
-        print(f"LLM Response: {response}")  # DEBUG: Show full response
+        prompt = build_prompt(command)
+        response_stream = chat_with_ollama(prompt)
+        full_response = ""
 
-        if isinstance(response, dict):
-            response_type = response.get("type")
-            content = response.get("content")
-
-            if response_type == "command":
-                if content.lower() in ["exit", "quit", "stop"]:
-                    await speak("Exiting. Goodbye!")
-                    return False  # Stop loop
-
-                # Restrict commands for security
-                allowed_commands = ["notepad", "calc"]  # Example: only allow Notepad and Calculator
-                if content.lower() in allowed_commands:
-                    os.system(content)  # Execute allowed command
-                else:
-                    await speak(f"Command '{content}' is not allowed.")
-
-            elif response_type == "response":
-                await speak(content)  # Speak AI-generated response
-        else:
-            print(f"Unexpected response format: {response}")
+        async for chunk in  response_stream:
+            full_response += chunk
+            await speak(chunk)
+        #storage only after full response is received
+        contextual_storage(command,full_response)
 
     except Exception as e:
-        print(f"Error in LLM response: {e}")
-        await speak("Sorry, I couldn't understand that.")
-
-    return True  # Keep running
+        print( f"Error in LLM response: {e}")
+        await speak ("sorry, i could't understand that.")
 
 
 async def main():
