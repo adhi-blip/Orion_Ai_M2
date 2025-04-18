@@ -1,14 +1,13 @@
 import asyncio
-import os
+
 import sys
 import json
-from logging import exception
 
 import pyaudio
 import vosk
 import pyttsx3
-import numpy as np
-import resample
+
+
 import time
 
 from torch.onnx.symbolic_opset11 import chunk
