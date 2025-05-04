@@ -76,7 +76,7 @@ async def listen():
                                 break
 
     except Exception as e:
-        print(f"Error in listening: {e}")
+        print(f"Error in listening: {type(e).__name__} - {e}")
     finally:
         stream.stop_stream()
         stream.close()
