@@ -73,4 +73,3 @@ def plot_spectrogram():
     plt.ylabel("Frequency [Hz]")
     plt.colorbar(label="Intensity [dB]")
     plt.show()
-#still dont know
