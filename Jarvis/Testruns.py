@@ -6,7 +6,7 @@ import pyttsx3
 import sys
 import vosk
 import numpy as np
-import resample
+from scipy.signal import resample #corrected
 import pyaudio
 import json
 import time
@@ -27,7 +27,7 @@ recognizer_model = vosk.Model(VOSK_MODEL_PATH)
 recognizer = vosk.KaldiRecognizer(recognizer_model, 16000)
 
 # Audio settings for high-quality mic
-INPUT_RATE = 192000
+INPUT_RATE = 198000
 TARGET_RATE = 16000
 CHANNELS = 2
 BUFFER_SIZE = 4096
@@ -36,7 +36,7 @@ DEVICE_INDEX = 1  # Update if needed
 def preprocess_audio(data):
     """Convert stereo audio at 192kHz to mono 16kHz for Vosk."""
     audio_data = np.frombuffer(data, dtype=np.int16)
-    mono_data = audio_data.reshape(-1, CHANNELS).mean(axis=1).astype(np.int16)
+    mono_data = audio_data[::CHANNELS]
     resampled_data = resample(mono_data, int(len(mono_data) * TARGET_RATE / INPUT_RATE)).astype(np.int16)
     return resampled_data.tobytes()
 
@@ -128,13 +128,23 @@ async def execute_command(command):
         prompt = build_prompt(command)
 
         # Call LLM with full prompt
-        response = await chat_with_ollama(prompt)
+        response =""
+        async for chunk in chat_with_ollama(prompt):
+            response +=chunk
 
         print(f"LLM Response: {response}")
 
+        try:
+            response_json = json.loads(response)
+        except json.JSONDecodeError:
+            print("Response is plain text, not Json")
+            await speak(response)
+            contextual_storage(command,response)
+            return True
+
         if isinstance(response, dict):
-            response_type = response.get("type")
-            content = response.get("content")
+            response_type = response_json.get("type")
+            content = response_json.get("content")
 
             if response_type == "command":
                 if content.lower() in ["exit", "quit", "stop"]:
